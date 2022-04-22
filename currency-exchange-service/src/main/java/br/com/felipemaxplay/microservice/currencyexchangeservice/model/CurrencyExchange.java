@@ -1,24 +1,36 @@
 package br.com.felipemaxplay.microservice.currencyexchangeservice.model;
 
+import io.micrometer.core.lang.NonNull;
+
+import javax.persistence.*;
 import java.math.BigDecimal;
+import java.util.Objects;
 
+@Entity
+@Table(name = "CURRENCY_EXCHANGES")
 public class CurrencyExchange {
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
+    @Column(name = "CURRENCY_FROM", nullable = false)
     private String from;
+    @Column(name = "CURRENCY_TO", nullable = false)
     private String to;
+    @Column(name = "CONVERSION_MULTIPLE", nullable = false)
     private BigDecimal conversionMultiple;
+    @Column(name = "ENVIRONMENT", nullable = false)
     private  String environment;
-
 
     @Deprecated
     public CurrencyExchange() {
     }
 
-    public CurrencyExchange(Long id, String from, String to, BigDecimal conversionMultiple) {
-        this.id = id;
-        this.from = from;
-        this.to = to;
-        this.conversionMultiple = conversionMultiple;
+    public CurrencyExchange(@NonNull Long id, @NonNull String from, @NonNull String to,
+                            @NonNull BigDecimal conversionMultiple) {
+        this.id = Objects.requireNonNull(id);
+        this.from = Objects.requireNonNull(from);
+        this.to = Objects.requireNonNull(to);
+        this.conversionMultiple = Objects.requireNonNull(conversionMultiple);
     }
 
     public Long getId() {

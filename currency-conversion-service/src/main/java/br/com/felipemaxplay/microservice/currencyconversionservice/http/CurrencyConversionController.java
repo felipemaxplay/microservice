@@ -1,5 +1,6 @@
 package br.com.felipemaxplay.microservice.currencyconversionservice.http;
 
+import br.com.felipemaxplay.microservice.currencyconversionservice.http.proxy.CurrencyExchangeProxy;
 import br.com.felipemaxplay.microservice.currencyconversionservice.model.CurrencyConversion;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -14,6 +15,12 @@ import java.util.HashMap;
 @RestController
 @RequestMapping(path = "/currency-conversion")
 public class CurrencyConversionController {
+
+    private final CurrencyExchangeProxy currencyExchangeProxy;
+
+    public CurrencyConversionController(CurrencyExchangeProxy currencyExchangeProxy) {
+        this.currencyExchangeProxy = currencyExchangeProxy;
+    }
 
     @GetMapping(path = "/from/{from}/to/{to}/quantity/{quantity}")
     CurrencyConversion calculateCurrencyConversion(
@@ -31,6 +38,19 @@ public class CurrencyConversionController {
         return new CurrencyConversion(currencyConversion.getId(), from, to, quantity,
                 currencyConversion.getConversionMultiple(),
                 quantity.multiply(currencyConversion.getConversionMultiple()),
-                currencyConversion.getEnvironment());
+                currencyConversion.getEnvironment() + " " + "restTemplate");
+    }
+
+    @GetMapping(path = "/feign/from/{from}/to/{to}/quantity/{quantity}")
+    CurrencyConversion calculateCurrencyConversionFeign(
+            @PathVariable("from") String from,
+            @PathVariable("to") String to,
+            @PathVariable("quantity") BigDecimal quantity
+    ) {
+        CurrencyConversion currencyConversion = currencyExchangeProxy.retrieveExchangeValue(from, to);
+        return new CurrencyConversion(currencyConversion.getId(), from, to, quantity,
+                currencyConversion.getConversionMultiple(),
+                quantity.multiply(currencyConversion.getConversionMultiple()),
+                currencyConversion.getEnvironment() + " " + "feign");
     }
 }
